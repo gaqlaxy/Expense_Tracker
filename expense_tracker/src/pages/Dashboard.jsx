@@ -111,13 +111,30 @@ export default function Dashboard() {
     return acc;
   }, []);
 
-  const totalAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
+  // Replace totalAmount calculation with this month only
+  const currentMonth = new Date().toISOString().slice(0, 7); // "2024-01"
+  const thisMonthExpenses = expenses.filter((e) =>
+    e.date.startsWith(currentMonth)
+  );
+  const totalThisMonth = thisMonthExpenses.reduce(
+    (sum, e) => sum + e.amount,
+    0
+  );
 
-  // Get unique days from expense dates
-  const daysWithExpenses = new Set(expenses.map((e) => e.date));
-  const averageDailySpend = daysWithExpenses.size
-    ? totalAmount / daysWithExpenses.size
+  // Update the card to use thisMonthExpenses for average daily spend too
+  const daysWithExpensesThisMonth = new Set(
+    thisMonthExpenses.map((e) => e.date)
+  );
+  const averageDailySpend = daysWithExpensesThisMonth.size
+    ? totalThisMonth / daysWithExpensesThisMonth.size
     : 0;
+
+  // Calculate yearly spend
+  const currentYear = new Date().getFullYear();
+  const thisYearExpenses = expenses.filter((e) =>
+    e.date.startsWith(currentYear.toString())
+  );
+  const totalThisYear = thisYearExpenses.reduce((sum, e) => sum + e.amount, 0);
 
   const filteredExpenses = expenses.filter((e) => {
     if (!startDate && !endDate) return true;
@@ -154,7 +171,9 @@ export default function Dashboard() {
           {/* This Month */}
           <div className="bg-gradient-to-br from-white to-blue-50 p-6 rounded-xl shadow border border-blue-100">
             <h2 className="text-sm text-gray-500 mb-2">This Month</h2>
-            <p className="text-3xl font-bold text-blue-600">₹{totalAmount}</p>
+            <p className="text-3xl font-bold text-blue-600">
+              ₹{totalThisMonth}
+            </p>
           </div>
 
           {/* Average Daily Spend */}
@@ -170,6 +189,14 @@ export default function Dashboard() {
             <h2 className="text-sm text-gray-500 mb-2">Transactions</h2>
             <p className="text-3xl font-bold text-yellow-600">
               {expenses.length}
+            </p>
+          </div>
+
+          {/* Yearly Spend */}
+          <div className="bg-gradient-to-br from-white to-purple-50 p-6 rounded-xl shadow border border-purple-100">
+            <h2 className="text-sm text-gray-500 mb-2">Yearly Spend</h2>
+            <p className="text-3xl font-bold text-purple-600">
+              ₹{totalThisYear}
             </p>
           </div>
         </div>
