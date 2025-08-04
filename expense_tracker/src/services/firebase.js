@@ -4,9 +4,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // TODO: replace these with your actual Firebase config values
-const firebaseConfig = {
-
-};
+const firebaseConfig = {};
 
 const app = initializeApp(firebaseConfig);
 

@@ -11,6 +11,8 @@ import {
   getDocs,
   orderBy,
   onSnapshot,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 import { db } from "../services/firebase";
 import {
@@ -34,6 +36,7 @@ import {
 import { FiPlus, FiLogOut, FiCalendar, FiMoon, FiSun } from "react-icons/fi";
 import Toast from "../components/Toast";
 import { useTheme } from "../context/ThemeContext";
+import { FiTrash } from "react-icons/fi";
 
 const categoryStyles = {
   Food: "bg-green-100 text-green-800",
@@ -63,6 +66,7 @@ export default function Dashboard() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [toast, setToast] = useState(null);
+  const [existingExpense, setExistingExpense] = useState(null);
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
@@ -91,6 +95,13 @@ export default function Dashboard() {
     }
   };
 
+  const deleteExpense = async (id) => {
+    try {
+      await deleteDoc(doc(db, "expenses", id));
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+    }
+  };
   useEffect(() => {
     if (!user) return;
 
@@ -177,6 +188,11 @@ export default function Dashboard() {
     return acc;
   }, {});
 
+  const groupedExpenses = expenses.reduce((acc, e) => {
+    if (!acc[e.category]) acc[e.category] = [];
+    acc[e.category].push(e);
+    return acc;
+  }, {});
   const categoryData = Object.entries(categoryDataObj).map(([name, value]) => ({
     name,
     value,
@@ -350,6 +366,35 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Grouped Expenses by Category */}
+        <div className="mb-6">
+          <h3 className={`text-lg font-semibold ${isDark ? "text-white" : ""}`}>
+            Expenses by Category
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+            {Object.entries(groupedExpenses).map(([category, items]) => (
+              <div
+                key={category}
+                className="bg-white dark:bg-gray-800 rounded-xl shadow p-4"
+              >
+                <h4 className="font-bold mb-2">{category}</h4>
+                <ul className="space-y-2">
+                  {items.map((e) => (
+                    <li
+                      key={e.id}
+                      className="flex justify-between items-center"
+                    >
+                      <span>{e.title}</span>
+                      <span className="font-semibold text-blue-600">
+                        ₹{e.amount}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pie Chart */}
@@ -488,7 +533,11 @@ export default function Dashboard() {
               Recent Expenses
             </h3>
             <button
-              onClick={() => setShowModal(true)}
+              // onClick={() => setShowModal(true)}
+              onClick={() => {
+                setExistingExpense(null); // Reset for "Add" mode
+                setShowModal(true);
+              }}
               className="text-sm px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-2"
             >
               <FiPlus size={16} />
@@ -501,9 +550,38 @@ export default function Dashboard() {
               <div className="text-center text-gray-500">No expenses yet</div>
             ) : (
               filteredExpenses.map((e) => (
+                // <div
+                //   key={e.id}
+                //   className="flex justify-between items-center p-3 border rounded-lg hover:shadow-sm transition"
+                // >
+                //   <div>
+                //     <p className="font-medium">{e.title}</p>
+                //     <div className="text-sm text-gray-500 flex items-center gap-2">
+                //       <span
+                //         className={`text-xs font-medium px-2 py-1 rounded ${
+                //           categoryStyles[e.category] ||
+                //           categoryStyles["General"]
+                //         }`}
+                //       >
+                //         {e.category}
+                //       </span>
+                //       <span>{e.date}</span>
+                //     </div>
+                //   </div>
+                //   <span className="font-semibold text-blue-600 text-lg">
+                //     ₹{e.amount}
+                //   </span>
+                //   <button
+                //     onClick={() => deleteExpense(e.id)}
+                //     className="absolute top-2 right-2 text-gray-400 hover:text-red-500 hidden group-hover:block"
+                //     title="Delete Expense"
+                //   >
+                //     🗑️
+                //   </button>
+                // </div>
                 <div
                   key={e.id}
-                  className="flex justify-between items-center p-3 border rounded-lg hover:shadow-sm transition"
+                  className="relative group flex justify-between items-center p-3 border rounded-lg hover:shadow-sm transition"
                 >
                   <div>
                     <p className="font-medium">{e.title}</p>
@@ -522,6 +600,16 @@ export default function Dashboard() {
                   <span className="font-semibold text-blue-600 text-lg">
                     ₹{e.amount}
                   </span>
+
+                  {/* 🗑 DELETE BUTTON */}
+                  <button
+                    onClick={() => deleteExpense(e.id)}
+                    className="absolute top-2 right-2 text-gray-400 hover:text-red-500 hidden group-hover:block"
+                    title="Delete Expense"
+                  >
+                    {/* 🗑️ */}
+                    <FiTrash size={20} />
+                  </button>
                 </div>
               ))
             )}
@@ -531,9 +619,17 @@ export default function Dashboard() {
 
       {/* Modal */}
       {showModal && (
+        // <AddExpenseModal
+        //   onClose={() => setShowModal(false)}
+        //   onSubmit={addExpense}
+        // />
         <AddExpenseModal
-          onClose={() => setShowModal(false)}
+          onClose={() => {
+            setShowModal(false);
+            setExistingExpense(null); // reset after closing
+          }}
           onSubmit={addExpense}
+          existingExpense={existingExpense}
         />
       )}
 
