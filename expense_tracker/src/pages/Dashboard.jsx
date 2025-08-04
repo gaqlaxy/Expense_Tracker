@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import SummaryHeader from "../components/SummaryHeader";
 import AddExpenseModal from "../components/AddExpenseModal";
+import WeeklyMonthlySummary from "../components/WeeklyMonthlySummary";
 import {
   collection,
   addDoc,
@@ -37,6 +38,7 @@ import { FiPlus, FiLogOut, FiCalendar, FiMoon, FiSun } from "react-icons/fi";
 import Toast from "../components/Toast";
 import { useTheme } from "../context/ThemeContext";
 import { FiTrash } from "react-icons/fi";
+import BudgetGoal from "../components/BudgetGoal";
 
 const categoryStyles = {
   Food: "bg-green-100 text-green-800",
@@ -282,8 +284,6 @@ export default function Dashboard() {
 
       {/* Main */}
       <main className="p-3 sm:p-4 md:p-8 space-y-6 sm:space-y-8">
-        <SummaryHeader expenses={expenses} />
-
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
           {/* This Month */}
           <div
@@ -365,6 +365,14 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
+        <SummaryHeader expenses={expenses} />
+
+        <BudgetGoal expenses={expenses} />
+        <WeeklyMonthlySummary
+          expenses={expenses}
+          isDark={isDark}
+          budget={Number(localStorage.getItem("budget")) || 0}
+        />
 
         {/* Grouped Expenses by Category */}
         <div className="mb-6">
