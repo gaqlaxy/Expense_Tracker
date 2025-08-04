@@ -1,12 +1,15 @@
 // src/App.jsx
 import { AuthProvider } from "./context/AuthContext";
-import AppRoutes from "./AppRoutes"; // We’ll create this next
+import { ThemeProvider } from "./context/ThemeContext";
+import AppRoutes from "./AppRoutes";
 
 function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
