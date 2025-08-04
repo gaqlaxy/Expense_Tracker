@@ -373,11 +373,36 @@ export default function Dashboard() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
             {Object.entries(groupedExpenses).map(([category, items]) => (
+              // <div
+              //   key={category}
+              //   className="bg-white dark:bg-gray-800 rounded-xl shadow p-4"
+              // >
+              //   <h4 className="font-bold mb-2">{category}</h4>
+              //   <ul className="space-y-2">
+              //     {items.map((e) => (
+              //       <li
+              //         key={e.id}
+              //         className="flex justify-between items-center"
+              //       >
+              //         <span>{e.title}</span>
+              //         <span className="font-semibold text-blue-600">
+              //           ₹{e.amount}
+              //         </span>
+              //       </li>
+              //     ))}
+              //   </ul>
+              // </div>
               <div
                 key={category}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow p-4"
+                className={`rounded-xl shadow p-4 border ${
+                  isDark
+                    ? "bg-gray-800 border-gray-700 text-white"
+                    : "bg-white border-gray-100"
+                }`}
               >
-                <h4 className="font-bold mb-2">{category}</h4>
+                <h4 className={`font-bold mb-2 ${isDark ? "text-white" : ""}`}>
+                  {category}
+                </h4>
                 <ul className="space-y-2">
                   {items.map((e) => (
                     <li
