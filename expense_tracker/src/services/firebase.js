@@ -5,13 +5,14 @@ import { getFirestore } from "firebase/firestore";
 
 // TODO: replace these with your actual Firebase config values
 const firebaseConfig = {
-    apiKey: "AIzaSyC0d7Ak4r7-i43BOfNXLLG8Oby1CBQij28",
-    authDomain: "expensetracker-4b0be.firebaseapp.com",
-    projectId: "expensetracker-4b0be",
-    storageBucket: "expensetracker-4b0be.firebasestorage.app",
-    messagingSenderId: "728643354938",
-    appId: "1:728643354938:web:0ad18a5d553179c7cc1003"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
+console.log("Firebase config:", firebaseConfig);
 
 const app = initializeApp(firebaseConfig);
 
