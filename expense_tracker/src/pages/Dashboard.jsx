@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import SummaryHeader from "../components/SummaryHeader";
 import AddExpenseModal from "../components/AddExpenseModal";
 import WeeklyMonthlySummary from "../components/WeeklyMonthlySummary";
+import SummaryCards from "../components/SummaryCards";
 import {
   collection,
   addDoc,
@@ -368,6 +369,7 @@ export default function Dashboard() {
         <SummaryHeader expenses={expenses} />
 
         <BudgetGoal expenses={expenses} />
+        <SummaryCards expenses={expenses} />
         <WeeklyMonthlySummary
           expenses={expenses}
           isDark={isDark}
