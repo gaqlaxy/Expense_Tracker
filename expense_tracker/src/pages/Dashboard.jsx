@@ -5,6 +5,8 @@ import SummaryHeader from "../components/SummaryHeader";
 import AddExpenseModal from "../components/AddExpenseModal";
 import WeeklyMonthlySummary from "../components/WeeklyMonthlySummary";
 import SummaryCards from "../components/SummaryCards";
+// import { isSameWeek, isSameMonth, isSameYear } from "date-fns";
+
 import {
   collection,
   addDoc,
@@ -585,35 +587,6 @@ export default function Dashboard() {
               <div className="text-center text-gray-500">No expenses yet</div>
             ) : (
               filteredExpenses.map((e) => (
-                // <div
-                //   key={e.id}
-                //   className="flex justify-between items-center p-3 border rounded-lg hover:shadow-sm transition"
-                // >
-                //   <div>
-                //     <p className="font-medium">{e.title}</p>
-                //     <div className="text-sm text-gray-500 flex items-center gap-2">
-                //       <span
-                //         className={`text-xs font-medium px-2 py-1 rounded ${
-                //           categoryStyles[e.category] ||
-                //           categoryStyles["General"]
-                //         }`}
-                //       >
-                //         {e.category}
-                //       </span>
-                //       <span>{e.date}</span>
-                //     </div>
-                //   </div>
-                //   <span className="font-semibold text-blue-600 text-lg">
-                //     ₹{e.amount}
-                //   </span>
-                //   <button
-                //     onClick={() => deleteExpense(e.id)}
-                //     className="absolute top-2 right-2 text-gray-400 hover:text-red-500 hidden group-hover:block"
-                //     title="Delete Expense"
-                //   >
-                //     🗑️
-                //   </button>
-                // </div>
                 <div
                   key={e.id}
                   className="relative group flex justify-between items-center p-3 border rounded-lg hover:shadow-sm transition"
