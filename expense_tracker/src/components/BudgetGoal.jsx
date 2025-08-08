@@ -8,6 +8,7 @@ export default function BudgetGoal({ expenses }) {
   const [budget, setBudget] = useState(0);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
 
   const currentMonth = new Date().toISOString().slice(0, 7);
   const totalThisMonth = expenses
@@ -30,7 +31,8 @@ export default function BudgetGoal({ expenses }) {
           setInput(amount);
         } else {
           setBudget(0);
-          setInput("");
+          // setInput("");
+          setInput(amount.toString());
         }
       } catch (err) {
         console.error("Error fetching budget:", err);
@@ -42,6 +44,18 @@ export default function BudgetGoal({ expenses }) {
     fetchBudget();
   }, [user]);
 
+  // const saveBudget = async () => {
+  //   const num = Number(input);
+  //   if (!user || isNaN(num) || num < 0) return;
+
+  //   try {
+  //     const docRef = doc(db, "users", user.uid, "budget", "monthly");
+  //     await setDoc(docRef, { amount: num });
+  //     setBudget(num);
+  //   } catch (err) {
+  //     console.error("Error saving budget:", err);
+  //   }
+  // };
   const saveBudget = async () => {
     const num = Number(input);
     if (!user || isNaN(num) || num < 0) return;
@@ -50,6 +64,8 @@ export default function BudgetGoal({ expenses }) {
       const docRef = doc(db, "users", user.uid, "budget", "monthly");
       await setDoc(docRef, { amount: num });
       setBudget(num);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       console.error("Error saving budget:", err);
     }
@@ -92,6 +108,7 @@ export default function BudgetGoal({ expenses }) {
               Save
             </button>
           </div>
+          {saved && <span className="text-green-500 text-xs ml-2">Saved!</span>}
         </div>
         <div className="flex flex-col gap-1 text-sm">
           <div className="text-gray-700 dark:text-gray-200">
@@ -110,7 +127,7 @@ export default function BudgetGoal({ expenses }) {
       </div>
       <div className="mt-4 h-3 bg-gray-200 dark:bg-gray-700 rounded-full border border-gray-100 dark:border-gray-600 overflow-hidden">
         <div
-          className={`h-full rounded-full transition-all ${
+          className={`h-full rounded-full transition-all duration-500 ease-out ${
             percent < 90
               ? "bg-blue-500"
               : percent < 100
@@ -120,6 +137,17 @@ export default function BudgetGoal({ expenses }) {
           style={{ width: `${percent}%` }}
         ></div>
       </div>
+      {percent >= 90 && percent < 100 && (
+        <div className="text-yellow-500 text-xs mt-1">
+          Almost at your budget limit!
+        </div>
+      )}
+      {percent >= 100 && (
+        <div className="text-red-500 text-xs mt-1">
+          You’ve exceeded your budget!
+        </div>
+      )}
+
       <div className="text-right text-xs text-gray-500 dark:text-gray-400 mt-1">
         {percent.toFixed(1)}% used
       </div>

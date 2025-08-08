@@ -627,10 +627,6 @@ export default function Dashboard() {
 
       {/* Modal */}
       {showModal && (
-        // <AddExpenseModal
-        //   onClose={() => setShowModal(false)}
-        //   onSubmit={addExpense}
-        // />
         <AddExpenseModal
           onClose={() => {
             setShowModal(false);
