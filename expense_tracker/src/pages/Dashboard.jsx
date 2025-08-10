@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import SummaryHeader from "../components/SummaryHeader";
 import AddExpenseModal from "../components/AddExpenseModal";
-
+import AddIncome from "../components/AddIncome";
 import SummaryCards from "../components/SummaryCards";
 import ExpenseItem from "../components/ExpenseItem";
 // import { isSameWeek, isSameMonth, isSameYear } from "date-fns";
@@ -19,8 +19,10 @@ import {
   deleteDoc,
   doc,
   updateDoc,
+  setDoc,
 } from "firebase/firestore";
-import { db } from "../services/firebase";
+import { auth, db } from "../services/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import {
   PieChart,
   Pie,
@@ -77,6 +79,72 @@ export default function Dashboard() {
   const [endDate, setEndDate] = useState("");
   const [toast, setToast] = useState(null);
   const [existingExpense, setExistingExpense] = useState(null);
+
+  const [showAddIncome, setShowAddIncome] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [income, setIncome] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUserId(user.uid);
+        // Now you can fetch income for this user
+        const incomeQuery = query(
+          collection(db, "income"),
+          where("userId", "==", user.uid)
+        );
+        const querySnapshot = await getDocs(incomeQuery);
+        if (!querySnapshot.empty) {
+          const docData = querySnapshot.docs[0];
+          setIncome({ id: docData.id, ...docData.data() });
+        } else {
+          setIncome(null);
+        }
+      } else {
+        setUserId(null);
+        setIncome(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+  useEffect(() => {
+    async function fetchIncome() {
+      try {
+        // Remove userId filtering for now, or define userId properly as above
+        const q = query(collection(db, "income"));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const docData = querySnapshot.docs[0];
+          setIncome({ id: docData.id, ...docData.data() });
+        }
+      } catch (error) {
+        console.error("Failed to fetch income", error);
+      }
+    }
+    fetchIncome();
+  }, []);
+
+  const handleSaveIncome = async (newIncomeData) => {
+    try {
+      if (income) {
+        // update existing
+        const incomeRef = doc(db, "income", income.id);
+        await updateDoc(incomeRef, newIncomeData);
+        setIncome({ ...income, ...newIncomeData });
+      } else {
+        // add new
+        const docRef = await addDoc(collection(db, "income"), {
+          ...newIncomeData,
+          userId, // if multi-user app
+        });
+        setIncome({ id: docRef.id, ...newIncomeData });
+      }
+      setShowAddIncome(false);
+    } catch (error) {
+      console.error("Error saving income:", error);
+    }
+  };
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
@@ -338,7 +406,18 @@ export default function Dashboard() {
 
       {/* Main */}
       <main className="p-3 sm:p-4 md:p-8 space-y-6 sm:space-y-8">
-        <SummaryCards expenses={expenses} isDark={isDark} />
+        {/* <SummaryCards
+          expenses={expenses}
+          isDark={isDark}
+          onEditIncome={() => setShowAddIncome(true)}
+        /> */}
+
+        <SummaryCards
+          expenses={expenses}
+          income={income}
+          isDark={isDark}
+          onEditIncome={() => setShowAddIncome(true)}
+        />
 
         <SummaryHeader expenses={expenses} />
 
@@ -681,6 +760,14 @@ export default function Dashboard() {
           type={toast.type}
           onClose={() => setToast(null)}
           isDark={isDark}
+        />
+      )}
+
+      {showAddIncome && (
+        <AddIncome
+          initialData={income}
+          onClose={() => setShowAddIncome(false)}
+          onSave={handleSaveIncome}
         />
       )}
     </div>

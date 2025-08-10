@@ -44,18 +44,6 @@ export default function BudgetGoal({ expenses }) {
     fetchBudget();
   }, [user]);
 
-  // const saveBudget = async () => {
-  //   const num = Number(input);
-  //   if (!user || isNaN(num) || num < 0) return;
-
-  //   try {
-  //     const docRef = doc(db, "users", user.uid, "budget", "monthly");
-  //     await setDoc(docRef, { amount: num });
-  //     setBudget(num);
-  //   } catch (err) {
-  //     console.error("Error saving budget:", err);
-  //   }
-  // };
   const saveBudget = async () => {
     const num = Number(input);
     if (!user || isNaN(num) || num < 0) return;
