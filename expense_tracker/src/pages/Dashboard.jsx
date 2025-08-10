@@ -5,6 +5,7 @@ import SummaryHeader from "../components/SummaryHeader";
 import AddExpenseModal from "../components/AddExpenseModal";
 import WeeklyMonthlySummary from "../components/WeeklyMonthlySummary";
 import SummaryCards from "../components/SummaryCards";
+import ExpenseItem from "../components/ExpenseItem";
 // import { isSameWeek, isSameMonth, isSameYear } from "date-fns";
 
 import {
@@ -17,6 +18,7 @@ import {
   onSnapshot,
   deleteDoc,
   doc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../services/firebase";
 import {
@@ -38,9 +40,10 @@ import {
   ChartSkeleton,
 } from "../components/SkeletonLoader";
 import { FiPlus, FiLogOut, FiCalendar, FiMoon, FiSun } from "react-icons/fi";
+
 import Toast from "../components/Toast";
 import { useTheme } from "../context/ThemeContext";
-import { FiTrash } from "react-icons/fi";
+import { FiTrash, FiEdit } from "react-icons/fi";
 import BudgetGoal from "../components/BudgetGoal";
 
 const categoryStyles = {
@@ -86,17 +89,65 @@ export default function Dashboard() {
     }
   };
 
-  const addExpense = async (expense) => {
+  // const addExpense = async (expense) => {
+  //   try {
+  //     await addDoc(collection(db, "expenses"), {
+  //       ...expense,
+  //       uid: user.uid,
+  //       date: expense.date || new Date().toISOString().split("T")[0],
+  //     });
+  //     showToast("Expense added successfully!", "success");
+  //   } catch (err) {
+  //     console.error("Error adding expense:", err);
+  //     showToast("Failed to add expense. Please try again.", "error");
+  //   }
+  // };
+  // const addExpense = async (expenseData, editId = null) => {
+  //   try {
+  //     if (editId) {
+  //       // 📝 UPDATE existing expense in Firebase
+  //       await updateDoc(doc(db, "expenses", editId), expenseData);
+  //       setExpenses((prev) =>
+  //         prev.map((exp) =>
+  //           exp.id === editId ? { ...exp, ...expenseData } : exp
+  //         )
+  //       );
+  //     } else {
+  //       // ➕ ADD new expense in Firebase
+  //       const docRef = await addDoc(collection(db, "expenses"), expenseData);
+  //       setExpenses((prev) => [...prev, { id: docRef.id, ...expenseData }]);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error saving expense:", error);
+  //   }
+  // };
+  const addExpense = async (expenseData, editId = null) => {
     try {
-      await addDoc(collection(db, "expenses"), {
-        ...expense,
+      // Normalize payload
+      const payload = {
+        ...expenseData,
         uid: user.uid,
-        date: expense.date || new Date().toISOString().split("T")[0],
-      });
-      showToast("Expense added successfully!", "success");
+        date: expenseData.date || new Date().toISOString().split("T")[0],
+        amount: Number(expenseData.amount || 0),
+        category: expenseData.category || "General",
+        note: expenseData.note || "",
+        title: expenseData.title || "",
+      };
+
+      if (editId) {
+        // UPDATE
+        await updateDoc(doc(db, "expenses", editId), payload);
+        showToast("Expense updated successfully!", "success");
+      } else {
+        // CREATE
+        await addDoc(collection(db, "expenses"), payload);
+        showToast("Expense added successfully!", "success");
+      }
+
+      // no local setExpenses here — your onSnapshot listener will pick up the change
     } catch (err) {
-      console.error("Error adding expense:", err);
-      showToast("Failed to add expense. Please try again.", "error");
+      console.error("Error saving expense:", err);
+      showToast("Failed to save expense. Please try again.", "error");
     }
   };
 
@@ -127,6 +178,28 @@ export default function Dashboard() {
 
     return () => unsubscribe();
   }, [user]);
+
+  const handleAdd = () => {
+    setExistingExpense(null);
+    setShowModal(true);
+  };
+
+  // Handle opening in Edit mode
+  const handleEdit = (expense) => {
+    setExistingExpense(expense);
+    setShowModal(true);
+  };
+
+  // Handle submit for both Add & Edit
+  const handleSubmit = (data, id) => {
+    if (id) {
+      updateExpense({ ...data, id }); // Edit
+    } else {
+      addExpense({ ...data, id: Date.now() }); // Add new
+    }
+    setShowModal(false);
+    setExistingExpense(null);
+  };
 
   if (loading) {
     return (
@@ -605,9 +678,22 @@ export default function Dashboard() {
                       <span>{e.date}</span>
                     </div>
                   </div>
+
                   <span className="font-semibold text-blue-600 text-lg">
                     ₹{e.amount}
                   </span>
+
+                  {/* ✏️ EDIT BUTTON */}
+                  <button
+                    onClick={() => {
+                      setExistingExpense(e);
+                      setShowModal(true);
+                    }}
+                    className="absolute top-2 right-10 text-gray-400 hover:text-yellow-500 hidden group-hover:block"
+                    title="Edit Expense"
+                  >
+                    <FiEdit size={20} />
+                  </button>
 
                   {/* 🗑 DELETE BUTTON */}
                   <button
@@ -615,7 +701,6 @@ export default function Dashboard() {
                     className="absolute top-2 right-2 text-gray-400 hover:text-red-500 hidden group-hover:block"
                     title="Delete Expense"
                   >
-                    {/* 🗑️ */}
                     <FiTrash size={20} />
                   </button>
                 </div>
@@ -647,5 +732,6 @@ export default function Dashboard() {
         />
       )}
     </div>
+    // Mobile Floating Button
   );
 }
