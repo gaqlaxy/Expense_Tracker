@@ -593,9 +593,19 @@ export default function Dashboard() {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={monthlyTrendData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
+                <XAxis
+                  dataKey="month"
+                  stroke={isDark ? "#E5E7EB" : "#374151"}
+                />
                 <YAxis />
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: isDark ? "#1F2937" : "#fff",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: isDark ? "#F9FAFB" : "#111827",
+                  }}
+                />
                 <Legend />
                 <Line
                   type="monotone"
