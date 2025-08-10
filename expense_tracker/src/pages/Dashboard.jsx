@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import SummaryHeader from "../components/SummaryHeader";
 import AddExpenseModal from "../components/AddExpenseModal";
-import WeeklyMonthlySummary from "../components/WeeklyMonthlySummary";
+
 import SummaryCards from "../components/SummaryCards";
 import ExpenseItem from "../components/ExpenseItem";
 // import { isSameWeek, isSameMonth, isSameYear } from "date-fns";
@@ -90,39 +90,6 @@ export default function Dashboard() {
       showToast("Failed to logout. Please try again.", "error");
     }
   };
-
-  // const addExpense = async (expense) => {
-  //   try {
-  //     await addDoc(collection(db, "expenses"), {
-  //       ...expense,
-  //       uid: user.uid,
-  //       date: expense.date || new Date().toISOString().split("T")[0],
-  //     });
-  //     showToast("Expense added successfully!", "success");
-  //   } catch (err) {
-  //     console.error("Error adding expense:", err);
-  //     showToast("Failed to add expense. Please try again.", "error");
-  //   }
-  // };
-  // const addExpense = async (expenseData, editId = null) => {
-  //   try {
-  //     if (editId) {
-  //       // 📝 UPDATE existing expense in Firebase
-  //       await updateDoc(doc(db, "expenses", editId), expenseData);
-  //       setExpenses((prev) =>
-  //         prev.map((exp) =>
-  //           exp.id === editId ? { ...exp, ...expenseData } : exp
-  //         )
-  //       );
-  //     } else {
-  //       // ➕ ADD new expense in Firebase
-  //       const docRef = await addDoc(collection(db, "expenses"), expenseData);
-  //       setExpenses((prev) => [...prev, { id: docRef.id, ...expenseData }]);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error saving expense:", error);
-  //   }
-  // };
 
   const statVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -371,92 +338,14 @@ export default function Dashboard() {
 
       {/* Main */}
       <main className="p-3 sm:p-4 md:p-8 space-y-6 sm:space-y-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-          {[
-            {
-              title: "This Month",
-              value: `₹${totalThisMonth}`,
-              icon: <FiCalendar size={20} />,
-              light: "from-white to-blue-50 border-blue-100",
-              dark: "from-gray-800 to-blue-900 border-blue-800",
-              iconBg: "bg-blue-100 dark:bg-blue-800",
-              iconText: "text-blue-600 dark:text-blue-300",
-              valueText: "text-blue-600 dark:text-blue-300",
-            },
-            {
-              title: "Avg Daily Spend",
-              value: `₹${averageDailySpend.toFixed(2)}`,
-              icon: <FiTrendingUp size={20} />,
-              light: "from-white to-green-50 border-green-100",
-              dark: "from-gray-800 to-green-900 border-green-800",
-              iconBg: "bg-green-100 dark:bg-green-800",
-              iconText: "text-green-600 dark:text-green-300",
-              valueText: "text-green-600 dark:text-green-300",
-            },
-            {
-              title: "Transactions",
-              value: expenses.length,
-              icon: <FiList size={20} />,
-              light: "from-white to-yellow-50 border-yellow-100",
-              dark: "from-gray-800 to-yellow-900 border-yellow-800",
-              iconBg: "bg-yellow-100 dark:bg-yellow-800",
-              iconText: "text-yellow-600 dark:text-yellow-300",
-              valueText: "text-yellow-600 dark:text-yellow-300",
-            },
-            {
-              title: "Yearly Spend",
-              value: `₹${totalThisYear}`,
-              icon: <FiBarChart2 size={20} />,
-              light: "from-white to-purple-50 border-purple-100",
-              dark: "from-gray-800 to-purple-900 border-purple-800",
-              iconBg: "bg-purple-100 dark:bg-purple-800",
-              iconText: "text-purple-600 dark:text-purple-300",
-              valueText: "text-purple-600 dark:text-purple-300",
-            },
-          ].map((stat, i) => (
-            <motion.div
-              key={stat.title}
-              custom={i}
-              initial="hidden"
-              animate="visible"
-              variants={statVariants}
-              className={`flex items-center p-4 sm:p-6 rounded-xl shadow border hover:shadow-lg transition 
-        bg-gradient-to-br ${isDark ? stat.dark : stat.light}`}
-            >
-              <div
-                className={`p-3 rounded-full ${stat.iconBg} ${stat.iconText} mr-4`}
-              >
-                {stat.icon}
-              </div>
-              <div>
-                <h2
-                  className={`text-xs sm:text-sm ${
-                    isDark ? "text-gray-300" : "text-gray-500"
-                  }`}
-                >
-                  {stat.title}
-                </h2>
-                <p
-                  className={`text-xl sm:text-2xl font-bold ${stat.valueText}`}
-                >
-                  {stat.value}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        <SummaryCards expenses={expenses} isDark={isDark} />
+
         <SummaryHeader expenses={expenses} />
 
         <BudgetGoal expenses={expenses} />
-        <SummaryCards expenses={expenses} />
-        <WeeklyMonthlySummary
-          expenses={expenses}
-          isDark={isDark}
-          budget={Number(localStorage.getItem("budget")) || 0}
-        />
 
         {/* Grouped Expenses by Category */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <h3 className={`text-lg font-semibold ${isDark ? "text-white" : ""}`}>
             Expenses by Category
           </h3>
@@ -489,7 +378,59 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
+        </div> */}
+        <div className="mb-6">
+          <h3
+            className={`text-lg font-semibold ${
+              isDark ? "text-white" : "text-gray-800"
+            }`}
+          >
+            Expenses by Category
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+            {Object.entries(groupedExpenses).map(([category, items]) => {
+              const categoryTotal = items.reduce(
+                (sum, e) => sum + Number(e.amount),
+                0
+              );
+
+              return (
+                <div
+                  key={category}
+                  className={`rounded-xl shadow p-5 border transition hover:shadow-lg
+            ${
+              isDark
+                ? "bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 text-white"
+                : "bg-gradient-to-br from-white to-blue-50 border-blue-100"
+            }
+          `}
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="font-bold text-lg">{category}</h4>
+                    <span className="text-blue-600 font-semibold dark:text-blue-400">
+                      ₹{categoryTotal.toFixed(2)}
+                    </span>
+                  </div>
+
+                  <ul className="space-y-2 text-sm">
+                    {items.map((e) => (
+                      <li
+                        key={e.id}
+                        className="flex justify-between items-center"
+                      >
+                        <span className="truncate">{e.title}</span>
+                        <span className="font-semibold text-blue-600 dark:text-blue-400">
+                          ₹{e.amount}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
         </div>
+
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pie Chart */}
