@@ -16,6 +16,7 @@ const firebaseConfig = {
 
 
 
+
 };
 console.log("Firebase config:", firebaseConfig);
 
