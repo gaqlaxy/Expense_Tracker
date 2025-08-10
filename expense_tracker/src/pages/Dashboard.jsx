@@ -45,6 +45,8 @@ import Toast from "../components/Toast";
 import { useTheme } from "../context/ThemeContext";
 import { FiTrash, FiEdit } from "react-icons/fi";
 import BudgetGoal from "../components/BudgetGoal";
+import { FiTrendingUp, FiList, FiBarChart2 } from "react-icons/fi";
+import { motion } from "framer-motion";
 
 const categoryStyles = {
   Food: "bg-green-100 text-green-800",
@@ -121,6 +123,15 @@ export default function Dashboard() {
   //     console.error("Error saving expense:", error);
   //   }
   // };
+
+  const statVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.1, duration: 0.4, ease: "easeOut" },
+    }),
+  };
   const addExpense = async (expenseData, editId = null) => {
     try {
       // Normalize payload
@@ -361,85 +372,78 @@ export default function Dashboard() {
       {/* Main */}
       <main className="p-3 sm:p-4 md:p-8 space-y-6 sm:space-y-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-          {/* This Month */}
-          <div
-            className={`${
-              isDark
-                ? "bg-gradient-to-br from-gray-800 to-blue-900 border-blue-800"
-                : "bg-gradient-to-br from-white to-blue-50 border-blue-100"
-            } p-4 sm:p-6 rounded-xl shadow border`}
-          >
-            <h2
-              className={`text-xs sm:text-sm ${
-                isDark ? "text-gray-300" : "text-gray-500"
-              } mb-2`}
+          {[
+            {
+              title: "This Month",
+              value: `₹${totalThisMonth}`,
+              icon: <FiCalendar size={20} />,
+              light: "from-white to-blue-50 border-blue-100",
+              dark: "from-gray-800 to-blue-900 border-blue-800",
+              iconBg: "bg-blue-100 dark:bg-blue-800",
+              iconText: "text-blue-600 dark:text-blue-300",
+              valueText: "text-blue-600 dark:text-blue-300",
+            },
+            {
+              title: "Avg Daily Spend",
+              value: `₹${averageDailySpend.toFixed(2)}`,
+              icon: <FiTrendingUp size={20} />,
+              light: "from-white to-green-50 border-green-100",
+              dark: "from-gray-800 to-green-900 border-green-800",
+              iconBg: "bg-green-100 dark:bg-green-800",
+              iconText: "text-green-600 dark:text-green-300",
+              valueText: "text-green-600 dark:text-green-300",
+            },
+            {
+              title: "Transactions",
+              value: expenses.length,
+              icon: <FiList size={20} />,
+              light: "from-white to-yellow-50 border-yellow-100",
+              dark: "from-gray-800 to-yellow-900 border-yellow-800",
+              iconBg: "bg-yellow-100 dark:bg-yellow-800",
+              iconText: "text-yellow-600 dark:text-yellow-300",
+              valueText: "text-yellow-600 dark:text-yellow-300",
+            },
+            {
+              title: "Yearly Spend",
+              value: `₹${totalThisYear}`,
+              icon: <FiBarChart2 size={20} />,
+              light: "from-white to-purple-50 border-purple-100",
+              dark: "from-gray-800 to-purple-900 border-purple-800",
+              iconBg: "bg-purple-100 dark:bg-purple-800",
+              iconText: "text-purple-600 dark:text-purple-300",
+              valueText: "text-purple-600 dark:text-purple-300",
+            },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.title}
+              custom={i}
+              initial="hidden"
+              animate="visible"
+              variants={statVariants}
+              className={`flex items-center p-4 sm:p-6 rounded-xl shadow border hover:shadow-lg transition 
+        bg-gradient-to-br ${isDark ? stat.dark : stat.light}`}
             >
-              This Month
-            </h2>
-            <p className="text-xl sm:text-3xl font-bold text-blue-600">
-              ₹{totalThisMonth}
-            </p>
-          </div>
-
-          {/* Average Daily Spend */}
-          <div
-            className={`${
-              isDark
-                ? "bg-gradient-to-br from-gray-800 to-green-900 border-green-800"
-                : "bg-gradient-to-br from-white to-green-50 border-green-100"
-            } p-4 sm:p-6 rounded-xl shadow border`}
-          >
-            <h2
-              className={`text-xs sm:text-sm ${
-                isDark ? "text-gray-300" : "text-gray-500"
-              } mb-2`}
-            >
-              Avg Daily Spend
-            </h2>
-            <p className="text-xl sm:text-3xl font-bold text-green-600">
-              ₹{averageDailySpend.toFixed(2)}
-            </p>
-          </div>
-
-          {/* No. of Transactions */}
-          <div
-            className={`${
-              isDark
-                ? "bg-gradient-to-br from-gray-800 to-yellow-900 border-yellow-800"
-                : "bg-gradient-to-br from-white to-yellow-50 border-yellow-100"
-            } p-4 sm:p-6 rounded-xl shadow border`}
-          >
-            <h2
-              className={`text-xs sm:text-sm ${
-                isDark ? "text-gray-300" : "text-gray-500"
-              } mb-2`}
-            >
-              Transactions
-            </h2>
-            <p className="text-xl sm:text-3xl font-bold text-yellow-600">
-              {expenses.length}
-            </p>
-          </div>
-
-          {/* Yearly Spend */}
-          <div
-            className={`${
-              isDark
-                ? "bg-gradient-to-br from-gray-800 to-purple-900 border-purple-800"
-                : "bg-gradient-to-br from-white to-purple-50 border-purple-100"
-            } p-4 sm:p-6 rounded-xl shadow border`}
-          >
-            <h2
-              className={`text-xs sm:text-sm ${
-                isDark ? "text-gray-300" : "text-gray-500"
-              } mb-2`}
-            >
-              Yearly Spend
-            </h2>
-            <p className="text-xl sm:text-3xl font-bold text-purple-600">
-              ₹{totalThisYear}
-            </p>
-          </div>
+              <div
+                className={`p-3 rounded-full ${stat.iconBg} ${stat.iconText} mr-4`}
+              >
+                {stat.icon}
+              </div>
+              <div>
+                <h2
+                  className={`text-xs sm:text-sm ${
+                    isDark ? "text-gray-300" : "text-gray-500"
+                  }`}
+                >
+                  {stat.title}
+                </h2>
+                <p
+                  className={`text-xl sm:text-2xl font-bold ${stat.valueText}`}
+                >
+                  {stat.value}
+                </p>
+              </div>
+            </motion.div>
+          ))}
         </div>
         <SummaryHeader expenses={expenses} />
 
@@ -458,25 +462,6 @@ export default function Dashboard() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
             {Object.entries(groupedExpenses).map(([category, items]) => (
-              // <div
-              //   key={category}
-              //   className="bg-white dark:bg-gray-800 rounded-xl shadow p-4"
-              // >
-              //   <h4 className="font-bold mb-2">{category}</h4>
-              //   <ul className="space-y-2">
-              //     {items.map((e) => (
-              //       <li
-              //         key={e.id}
-              //         className="flex justify-between items-center"
-              //       >
-              //         <span>{e.title}</span>
-              //         <span className="font-semibold text-blue-600">
-              //           ₹{e.amount}
-              //         </span>
-              //       </li>
-              //     ))}
-              //   </ul>
-              // </div>
               <div
                 key={category}
                 className={`rounded-xl shadow p-4 border ${
@@ -655,20 +640,66 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="space-y-3">
-            {filteredExpenses.length === 0 ? (
-              <div className="text-center text-gray-500">No expenses yet</div>
-            ) : (
-              filteredExpenses.map((e) => (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredExpenses.map((e) => {
+              const colorMap = {
+                Food: "#34D399",
+                Travel: "#3B82F6",
+                Shopping: "#EC4899",
+                Utilities: "#F59E0B",
+                Health: "#EF4444",
+                General: "#9CA3AF",
+              };
+
+              return (
                 <div
                   key={e.id}
-                  className="relative group flex justify-between items-center p-3 border rounded-lg hover:shadow-sm transition"
+                  className="relative group flex rounded-xl overflow-hidden 
+                   bg-white dark:bg-gray-900 
+                   border border-gray-200 dark:border-gray-700 
+                   shadow-sm hover:shadow-md transition"
                 >
-                  <div>
-                    <p className="font-medium">{e.title}</p>
-                    <div className="text-sm text-gray-500 flex items-center gap-2">
+                  <div
+                    className="w-2 sm:w-3"
+                    style={{
+                      backgroundColor: colorMap[e.category] || "#9CA3AF",
+                    }}
+                  ></div>
+
+                  {/* Content Area */}
+                  <div className="flex-1 p-4">
+                    {/* Action Buttons */}
+                    <div className="absolute top-2 right-2 flex gap-2">
+                      <button
+                        onClick={() => {
+                          setExistingExpense(e);
+                          setShowModal(true);
+                        }}
+                        className="block md:hidden md:group-hover:inline-flex 
+                         text-gray-500 dark:text-gray-400 
+                         hover:text-blue-500 p-1 rounded"
+                      >
+                        <FiEdit size={18} />
+                      </button>
+                      <button
+                        onClick={() => deleteExpense(e.id)}
+                        className="block md:hidden md:group-hover:inline-flex 
+                         text-gray-500 dark:text-gray-400 
+                         hover:text-red-500 p-1 rounded"
+                      >
+                        <FiTrash size={18} />
+                      </button>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200 truncate">
+                      {e.title}
+                    </h3>
+
+                    {/* Category + Date */}
+                    <div className="mt-1 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                       <span
-                        className={`text-xs font-medium px-2 py-1 rounded ${
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
                           categoryStyles[e.category] ||
                           categoryStyles["General"]
                         }`}
@@ -677,35 +708,15 @@ export default function Dashboard() {
                       </span>
                       <span>{e.date}</span>
                     </div>
+
+                    {/* Amount */}
+                    <div className="mt-3 text-xl font-bold text-blue-600 dark:text-blue-400">
+                      ₹{e.amount}
+                    </div>
                   </div>
-
-                  <span className="font-semibold text-blue-600 text-lg">
-                    ₹{e.amount}
-                  </span>
-
-                  {/* ✏️ EDIT BUTTON */}
-                  <button
-                    onClick={() => {
-                      setExistingExpense(e);
-                      setShowModal(true);
-                    }}
-                    className="absolute top-2 right-10 text-gray-400 hover:text-yellow-500 hidden group-hover:block"
-                    title="Edit Expense"
-                  >
-                    <FiEdit size={20} />
-                  </button>
-
-                  {/* 🗑 DELETE BUTTON */}
-                  <button
-                    onClick={() => deleteExpense(e.id)}
-                    className="absolute top-2 right-2 text-gray-400 hover:text-red-500 hidden group-hover:block"
-                    title="Delete Expense"
-                  >
-                    <FiTrash size={20} />
-                  </button>
                 </div>
-              ))
-            )}
+              );
+            })}
           </div>
         </div>
       </main>
