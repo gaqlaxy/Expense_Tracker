@@ -252,6 +252,7 @@ export default function Dashboard() {
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">Expense Tracker</h1>
+
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600">{user?.email}</span>
             <button
@@ -459,13 +460,21 @@ export default function Dashboard() {
           </div>
         </div> */}
         <div className="mb-6">
-          <h3
-            className={`text-lg font-semibold ${
-              isDark ? "text-white" : "text-gray-800"
-            }`}
-          >
-            Expenses by Category
-          </h3>
+          <div className="flex justify-between items-center">
+            <h3
+              className={`text-lg font-semibold ${
+                isDark ? "text-white" : "text-gray-800"
+              }`}
+            >
+              Expenses by Category
+            </h3>
+            <button
+              onClick={() => navigate("/analytics")}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow transition"
+            >
+              View Analytics
+            </button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
             {Object.entries(groupedExpenses).map(([category, items]) => {
               const categoryTotal = items.reduce(
